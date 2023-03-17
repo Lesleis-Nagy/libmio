@@ -3,7 +3,18 @@
 #include <antlr4-runtime.h>
 #include <MerrillTecplotLexer.h>
 #include <MerrillTecplotParser.h>
-#include <Visitor.hpp>
+#include <MerrillTecplotBaseVisitor.h>
+
+class MerrillTecplotVisitorImpl : public MerrillTecplotBaseVisitor {
+public:
+    std::any visitDocument(MerrillTecplotParser::DocumentContext *ctx) override {
+        std::any result = visitChildren(ctx);
+        if (!ctx->title()->isEmpty()) {
+            std::cout << "Title: " << ctx->title()->StringLiteral()->getText() << "\n";
+        }
+        return result;
+    }
+};
 
 int main(int argc, char *argv[]) {
 
@@ -18,11 +29,6 @@ int main(int argc, char *argv[]) {
 
     MerrillTecplotParser::DocumentContext *tree = parser.document();
 
-    Visitor visitor;
-    FileData file_data = std::any_cast<FileData>(visitor.visitDocument(tree));
-
-    std::cout << "file_data.title():  " << file_data.title() << std::endl;
-    std::cout << "file_data.nzones(): " << file_data.nzones() << std::endl;
-    std::cout << "file_data.nvert():  " << file_data.nvert() << std::endl;
-    std::cout << "file_data.nelem():  " << file_data.nelem() << std::endl;
+    MerrillTecplotVisitorImpl visitor;
+    visitor.visitDocument(tree);
 }

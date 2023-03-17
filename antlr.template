@@ -1,0 +1,2 @@
+#!/bin/bash
+CLASSPATH="@LIBMIO_ANTLR4_SRC_DIR@/antlr-4.10.1-complete.jar:." exec "java" -jar @LIBMIO_ANTLR4_SRC_DIR@/antlr-4.10.1-complete.jar "$@"
