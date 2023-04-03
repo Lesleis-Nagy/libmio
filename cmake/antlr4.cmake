@@ -1,9 +1,9 @@
 include(ExternalProject)
 
-macro (build_antlr4)
+macro (setup_antlr4)
 
     # Set variables.
-    set(LIBMIO_ANTLR4 "antlr-v4.10.1")
+    set(LIBMIO_ANTLR4 "antlr-v4.12.0")
     set(LIBMIO_ANTLR4_SRC_DIR "${LIBMIO_THIRD_PARTY_DIR}/${LIBMIO_ANTLR4}")
     set(LIBMIO_ANTLR4_BUILD_DIR "${LIBMIO_BUILD_DIR}/${LIBMIO_ANTLR4}")
     set(LIBMIO_ANTLR4_INSTALL_DIR "${LIBMIO_INSTALL_DIR}/${LIBMIO_ANTLR4}")
@@ -28,12 +28,25 @@ macro (build_antlr4)
 
     # Find headers and library.
     find_path(ANTLR4_INCLUDES
-              NAMES antlr4-common.h
-              PATHS ${LIBMIO_ANTLR4_INSTALL_DIR}/include/antlr4-runtime)
+              NAMES "antlr4-common.h"
+              PATHS "${LIBMIO_ANTLR4_INSTALL_DIR}/include/antlr4-runtime"
+              NO_DEFAULT_PATH
+              NO_PACKAGE_ROOT_PATH
+              NO_CMAKE_PATH
+              NO_CMAKE_ENVIRONMENT_PATH
+              NO_SYSTEM_ENVIRONMENT_PATH
+              NO_CMAKE_SYSTEM_PATH
+              NO_CMAKE_INSTALL_PREFIX)
 
-    find_library(ANTLR4_LIBRARIES libantlr4-runtime.a
-                 PATHS ${LIBMIO_ANTLR4_INSTALL_DIR}/lib
-                 NO_DEFAULT_PATH)
+    find_library(ANTLR4_LIBRARIES "libantlr4-runtime.a"
+                 PATHS "${LIBMIO_ANTLR4_INSTALL_DIR}/lib"
+                 NO_DEFAULT_PATH
+                 NO_PACKAGE_ROOT_PATH
+                 NO_CMAKE_PATH
+                 NO_CMAKE_ENVIRONMENT_PATH
+                 NO_SYSTEM_ENVIRONMENT_PATH
+                 NO_CMAKE_SYSTEM_PATH
+                 NO_CMAKE_INSTALL_PREFIX)
 
     # Set up the antlr executable
     set(ANTLR4_EXE "${LIBMIO_ANTLR4_INSTALL_DIR}/antlr")

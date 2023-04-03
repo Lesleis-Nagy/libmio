@@ -1,29 +1,51 @@
-add_executable(tec2hdf tec2hdf.cpp)
 
-target_include_directories(tec2hdf
-    PUBLIC ${LIBMIO_INCLUDES}
-           ${ANTLR4_INCLUDES})
+#######################################################################################################################
+# Build and generate the ANTLR4 parse library.                                                                        #
+#######################################################################################################################
 
-file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/antlr/grammar)
-add_custom_target(tec2hdf_antlr4
-        COMMAND ${ANTLR4_EXE} -listener -visitor -Dlanguage=Cpp ${CMAKE_SOURCE_DIR}/grammar/MerrillTecplot.g4 -o .
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/antlr/grammar
-        SOURCES           ${CMAKE_SOURCE_DIR}/grammar/MerrillTecplot.g4
-        BYPRODUCTS        ${CMAKE_BINARY_DIR}/antlr/grammar/MerrillTecplotBaseVisitor.cpp
-        ${CMAKE_BINARY_DIR}/antlr/grammar/MerrillTecplotLexer.cpp
-        ${CMAKE_BINARY_DIR}/antlr/grammar/MerrillTecplotParser.cpp
-        ${CMAKE_BINARY_DIR}/antlr/grammar/MerrillTecplotVisitor.cpp)
-include_directories(${CMAKE_BINARY_DIR}/antlr/grammar)
-add_dependencies(tec2hdf tec2hdf_antlr4)
+set(ANTLR4_GEN_INCLUDES ${CMAKE_BINARY_DIR}/antlr/grammar)
 
-target_link_libraries(tec2hdf merrilltecplot)
+file(MAKE_DIRECTORY ${ANTLR4_GEN_INCLUDES})
 
-add_library(merrilltecplot
-        ${CMAKE_BINARY_DIR}/antlr/grammar/MerrillTecplotBaseVisitor.cpp
-        ${CMAKE_BINARY_DIR}/antlr/grammar/MerrillTecplotLexer.cpp
-        ${CMAKE_BINARY_DIR}/antlr/grammar/MerrillTecplotParser.cpp
-        ${CMAKE_BINARY_DIR}/antlr/grammar/MerrillTecplotVisitor.cpp)
-target_include_directories(merrilltecplot
-        PUBLIC ${ANTLR4_INCLUDES})
-target_link_libraries(merrilltecplot
+add_custom_target(tecplot_antlr4
+        COMMAND ${ANTLR4_EXE} -listener -visitor -Dlanguage=Cpp ${CMAKE_SOURCE_DIR}/grammar/Tecplot.g4 -o .
+        WORKING_DIRECTORY ${ANTLR4_GEN_INCLUDES}
+        SOURCES           ${CMAKE_SOURCE_DIR}/grammar/Tecplot.g4
+        BYPRODUCTS        ${ANTLR4_GEN_INCLUDES}/TecplotBaseVisitor.cpp
+                          ${ANTLR4_GEN_INCLUDES}/TecplotLexer.cpp
+                          ${ANTLR4_GEN_INCLUDES}/TecplotParser.cpp
+                          ${ANTLR4_GEN_INCLUDES}/TecplotVisitor.cpp)
+
+add_library(antlr4_tecplot ${ANTLR4_GEN_INCLUDES}/TecplotBaseVisitor.cpp
+                           ${ANTLR4_GEN_INCLUDES}/TecplotLexer.cpp
+                           ${ANTLR4_GEN_INCLUDES}/TecplotParser.cpp
+                           ${ANTLR4_GEN_INCLUDES}/TecplotVisitor.cpp)
+
+target_include_directories(antlr4_tecplot
+        PUBLIC ${ANTLR4_INCLUDES}
+               ${ANTLR4_GEN_INCLUDES})
+
+target_link_libraries(antlr4_tecplot
         ${ANTLR4_LIBRARIES})
+
+#######################################################################################################################
+# User mio utilities library.                                                                                         #
+#######################################################################################################################
+
+add_library(mio_utilities utilities.cpp)
+target_include_directories(mio_utilities
+        PUBLIC ${LIBMIO_INCLUDES})
+
+#######################################################################################################################
+# User mio tecplot library.                                                                                           #
+#######################################################################################################################
+
+add_library(mio_tecplot tecplot.cpp)
+target_include_directories(mio_tecplot
+        PUBLIC ${LIBMIO_INCLUDES}
+        ${ANTLR4_INCLUDES})
+target_link_libraries(mio_tecplot
+        mio_utilities
+        antlr4_tecplot)
+
+add_dependencies(mio_tecplot tecplot_antlr4)

@@ -17,11 +17,44 @@ set(LIBMIO_INSTALL_DIR     "${CMAKE_BINARY_DIR}/install")
 file(MAKE_DIRECTORY        ${LIBMIO_BUILD_DIR})
 file(MAKE_DIRECTORY        ${LIBMIO_INSTALL_DIR})
 
-# Include our build_antlr4() macro & run it.
+# Set up ANTLR4 macro & run it.
 include(antlr4)
-build_antlr4()
+setup_antlr4()
 
-message("ANTLR4_INCLUDES:  ${ANTLR4_INCLUDES}")
-message("ANTLR4_LIBRARIES: ${ANTLR4_LIBRARIES}")
+# Set up RapidXML
+include(rapidxml)
+setup_rapidxml()
 
+# Set up TaoJSON
+include(taojson)
+setup_taojson()
+
+# Set up args
+include(args)
+setup_args()
+
+# Set up catch2
+include(catch2)
+setup_catch2()
+
+# Display a message for each of our libraries.
+message(STATUS "ANTLR4_INCLUDES:   ${ANTLR4_INCLUDES}")
+message(STATUS "ANTLR4_LIBRARIES:  ${ANTLR4_LIBRARIES}")
+message(STATUS "ANTLR4_EXE:        ${ANTLR4_EXE}")
+
+message(STATUS "RAPIDXML_INCLUDES: ${RAPIDXML_INCLUDES}")
+
+message(STATUS "TAOJSON_INCLUDES:  ${TAOJSON_INCLUDES}")
+
+message(STATUS "ARGS_INCLUDES:     ${ARGS_INCLUDES}")
+
+message(STATUS "CATCH2_INCLUDES:   ${CATCH2_INCLUDES}")
+
+# Descend in to the source directory.
 add_subdirectory(src)
+
+# Descend in to the toys directory.
+add_subdirectory(toys)
+
+# Descend in to the test directory.
+add_subdirectory(test)
